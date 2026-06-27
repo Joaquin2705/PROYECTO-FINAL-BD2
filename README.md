@@ -55,6 +55,19 @@ FastAPI en `api/`:
 Los errores salen siempre con el formato `{error, detail}`. El executor usa
 índices mock mientras se conectan los reales.
 
+## Frontend
+
+Next.js en `frontend/`:
+- Editor de queries que llama a `POST /query`.
+- Tabla con los resultados.
+- Galería para imágenes y reproductor para audio, servidos desde `/files/{name}`.
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
 ## Entorno
 
 Python 3.12:
@@ -66,3 +79,12 @@ pip install -r requirements.txt
 ```
 
 Las dependencias están fijadas en `requirements.txt`.
+
+## Pruebas
+
+Los tests del query processor corren con pytest contra los mocks:
+
+```bash
+cd multimodal-db
+pytest tests/
+```
