@@ -24,3 +24,46 @@ body {
 .content {
   padding: 24px;
 }
+
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 720px;
+}
+
+.editor-input {
+  width: 100%;
+  padding: 12px;
+  font-family: ui-monospace, monospace;
+  font-size: 14px;
+  color: #e6e6e6;
+  background: #161a22;
+  border: 1px solid #262c38;
+  border-radius: 6px;
+  resize: vertical;
+}
+
+.editor-run {
+  align-self: flex-start;
+  padding: 8px 16px;
+  font-size: 14px;
+  color: #0f1117;
+  background: #6ea8fe;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.editor-run:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.editor-error {
+  color: #ff6b6b;
+}
+
+.editor-info {
+  color: #9aa4b2;
+}

@@ -1,3 +1,5 @@
+import QueryEditor from "./components/QueryEditor";
+
 export default function Home() {
-  return <p>Consola del motor multimodal.</p>;
+  return <QueryEditor />;
 }
