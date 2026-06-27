@@ -27,6 +27,10 @@ class QueryExecutor(Executor):
             return self._drop_table(plan)
         if plan.op is PlanOp.CREATE_INDEX:
             return self._create_index(plan)
+        if plan.op is PlanOp.INSERT:
+            return self._insert(plan)
+        if plan.op is PlanOp.DELETE:
+            return self._delete(plan)
         raise ValueError(f"operación no soportada: {plan.op.name}")
 
     def _create_table(self, plan: QueryPlan) -> ResultSet:
@@ -45,3 +49,27 @@ class QueryExecutor(Executor):
         index = self._factory.create(index_type, schema, self._storage)
         self._indexes[(plan.table, plan.columns[0])] = index
         return ResultSet()
+
+    def _insert(self, plan: QueryPlan) -> ResultSet:
+        cols = plan.columns or self._tables.get(plan.table, [])
+        affected = 0
+        for row in plan.rows:
+            record = dict(zip(cols, row))
+            for (table, column), index in self._indexes.items():
+                if table == plan.table and column in record:
+                    index.insert(record[column], record)
+            affected += 1
+        return self._count_result(affected)
+
+    def _delete(self, plan: QueryPlan) -> ResultSet:
+        affected = 0
+        pred = plan.predicate
+        if pred is not None:
+            index = self._indexes.get((plan.table, pred.column))
+            if index is not None and hasattr(pred, "value"):
+                affected = index.delete(pred.value).affected
+        return self._count_result(affected)
+
+    # Arma un resultado que solo informa cuántas filas cambiaron
+    def _count_result(self, affected: int) -> ResultSet:
+        return ResultSet(columns=["affected"], rows=[(affected,)])
