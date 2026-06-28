@@ -5,6 +5,7 @@ import { runQuery, type QueryResult } from "../lib/api";
 import ResultsTable from "./ResultsTable";
 import MediaGallery from "./MediaGallery";
 import AudioPlayer from "./AudioPlayer";
+import MetricsPanel from "./MetricsPanel";
 
 export default function QueryEditor() {
   const [sql, setSql] = useState("SELECT * FROM img");
@@ -42,6 +43,7 @@ export default function QueryEditor() {
       {result && (
         <>
           <p className="editor-info">{result.rows.length} filas</p>
+          <MetricsPanel result={result} />
           <ResultsTable result={result} />
           <MediaGallery result={result} />
           <AudioPlayer result={result} />

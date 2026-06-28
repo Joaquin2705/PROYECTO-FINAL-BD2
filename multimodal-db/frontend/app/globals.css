@@ -68,6 +68,36 @@ body {
   color: #9aa4b2;
 }
 
+.metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 12px;
+  background: #161a22;
+  border: 1px solid #262c38;
+  border-radius: 6px;
+  min-width: 90px;
+}
+
+.metric-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6b7280;
+}
+
+.metric-value {
+  font-family: ui-monospace, monospace;
+  font-size: 14px;
+  color: #e6e6e6;
+}
+
 .results {
   width: 100%;
   border-collapse: collapse;

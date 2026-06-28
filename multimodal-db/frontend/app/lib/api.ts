@@ -2,6 +2,9 @@ export interface QueryResult {
   columns: string[];
   rows: unknown[][];
   io: { disk_reads: number; disk_writes: number; pages_allocated: number };
+  index_type: string | null;
+  predicate_kind: string | null;
+  elapsed_ms: number;
 }
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
