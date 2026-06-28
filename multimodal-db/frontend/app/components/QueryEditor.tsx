@@ -7,12 +7,14 @@ import MediaGallery from "./MediaGallery";
 import AudioPlayer from "./AudioPlayer";
 import MetricsPanel from "./MetricsPanel";
 import SqlSnippets from "./SqlSnippets";
+import QueryHistory from "./QueryHistory";
 
 export default function QueryEditor() {
   const [sql, setSql] = useState("SELECT * FROM img");
   const [result, setResult] = useState<QueryResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [history, setHistory] = useState<string[]>([]);
 
   async function onRun() {
     setLoading(true);
@@ -20,6 +22,7 @@ export default function QueryEditor() {
     try {
       const data = await runQuery(sql);
       setResult(data);
+      setHistory((prev) => [sql, ...prev.filter((q) => q !== sql)].slice(0, 10));
     } catch (e) {
       setError(e instanceof Error ? e.message : "error");
       setResult(null);
@@ -53,6 +56,7 @@ export default function QueryEditor() {
         </button>
         <span className="editor-hint">Ctrl+Enter para ejecutar</span>
       </div>
+      <QueryHistory items={history} onPick={setSql} />
       {error && <p className="editor-error">{error}</p>}
       {result && (
         <>
