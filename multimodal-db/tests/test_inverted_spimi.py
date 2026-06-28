@@ -40,7 +40,7 @@ def test_inverted_index_builds_spimi_postings_for_text_records() -> None:
     assert index.postings_for("database") == {"10": 2, "30": 1}
 
 
-def test_inverted_index_text_match_requires_all_query_terms() -> None:
+def test_inverted_index_text_match_ranks_by_tfidf_cosine() -> None:
     index = InvertedIndex(column="body", block_document_limit=2)
     index.build(
         [
@@ -50,9 +50,12 @@ def test_inverted_index_text_match_requires_all_query_terms() -> None:
         ]
     )
 
-    result = index.search(TextMatchPredicate(column="body", terms="visual search"))
+    result = index.search(TextMatchPredicate(column="body", terms="visual search", k=1))
+    ranked = index.rank("visual search", k=3)
 
     assert result.records == [{"id": 1, "body": "visual search database"}]
+    assert ranked[0][0] == "1"
+    assert ranked[0][1] > ranked[1][1]
 
 
 def test_inverted_index_insert_and_delete_update_postings() -> None:
@@ -70,6 +73,20 @@ def test_inverted_index_insert_and_delete_update_postings() -> None:
     assert index.postings_for("beta") == {}
 
 
+def test_inverted_index_computes_document_norms() -> None:
+    index = InvertedIndex(column="body", block_document_limit=2)
+
+    index.build(
+        [
+            {"id": 1, "body": "alpha alpha beta"},
+            {"id": 2, "body": "beta gamma"},
+        ]
+    )
+
+    assert index.document_norm(1) > index.document_norm(2)
+    assert index.document_norm("missing") == 0.0
+
+
 def test_inverted_index_restores_snapshot_from_mock_storage() -> None:
     storage = MockStorageEngine()
     index = InvertedIndex(column="body", block_document_limit=2, storage=storage)
@@ -85,3 +102,4 @@ def test_inverted_index_restores_snapshot_from_mock_storage() -> None:
 
     assert storage.stats().disk_writes > 0
     assert [record["id"] for record in result.records] == [1, 2]
+    assert restored.document_norm(1) > 0.0

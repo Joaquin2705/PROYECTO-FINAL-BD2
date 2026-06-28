@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import math
 from typing import Any, Iterable
 
 from core.metrics import IOStats, OperationResult
@@ -27,6 +28,7 @@ class InvertedIndex(Index):
         self.file_id = file_id or f"inverted_{column}"
         self._documents: dict[str, Any] = {}
         self._postings: dict[str, dict[str, int]] = {}
+        self._doc_norms: dict[str, float] = {}
         self._last_block_count = 0
         self._load_snapshot()
 
@@ -40,6 +42,7 @@ class InvertedIndex(Index):
         builder = SPIMIBlockBuilder(block_document_limit=self.block_document_limit)
         self._postings = builder.build(documents)
         self._last_block_count = builder.block_count()
+        self._compute_document_norms()
         self._persist_snapshot()
         return OperationResult(affected=len(self._documents), io=self._stats())
 
@@ -52,6 +55,7 @@ class InvertedIndex(Index):
         for term, frequency in term_counts.items():
             postings = self._postings.setdefault(term, {})
             postings[doc_id] = postings.get(doc_id, 0) + frequency
+        self._compute_document_norms()
         self._persist_snapshot()
         return OperationResult(affected=1, io=self._stats())
 
@@ -59,14 +63,41 @@ class InvertedIndex(Index):
         terms = tokenize(predicate.terms if isinstance(predicate, TextMatchPredicate) else str(predicate))
         if not terms:
             return OperationResult(records=[], io=self._stats())
-        matched_ids = set(self._postings.get(terms[0], {}))
-        for term in terms[1:]:
-            matched_ids &= set(self._postings.get(term, {}))
-        records = [self._documents[doc_id] for doc_id in sorted(matched_ids) if doc_id in self._documents]
         limit = k if k is not None else getattr(predicate, "k", None)
-        if limit is not None:
-            records = records[:limit]
+        ranked = self.rank(predicate.terms if isinstance(predicate, TextMatchPredicate) else str(predicate), limit)
+        records = [self._documents[doc_id] for doc_id, _score in ranked if doc_id in self._documents]
         return OperationResult(records=records, io=self._stats())
+
+    def rank(self, query: str, k: int | None = None) -> list[tuple[str, float]]:
+        query_tf: dict[str, int] = {}
+        for term in tokenize(query):
+            query_tf[term] = query_tf.get(term, 0) + 1
+        if not query_tf:
+            return []
+        query_weights: dict[str, float] = {}
+        for term, frequency in query_tf.items():
+            if term not in self._postings:
+                continue
+            query_weights[term] = frequency * self._idf(term)
+        query_norm = math.sqrt(sum(weight * weight for weight in query_weights.values()))
+        if not query_weights or query_norm == 0.0:
+            return []
+        scores: dict[str, float] = {}
+        for term, query_weight in query_weights.items():
+            idf = self._idf(term)
+            for doc_id, frequency in self._postings.get(term, {}).items():
+                doc_weight = frequency * idf
+                scores[doc_id] = scores.get(doc_id, 0.0) + doc_weight * query_weight
+        ranked: list[tuple[str, float]] = []
+        for doc_id, dot_product in scores.items():
+            doc_norm = self._doc_norms.get(doc_id, 0.0)
+            if doc_norm == 0.0:
+                continue
+            ranked.append((doc_id, dot_product / (doc_norm * query_norm)))
+        ranked.sort(key=lambda item: (-item[1], item[0]))
+        if k is not None:
+            return ranked[:k]
+        return ranked
 
     def delete(self, key: Any) -> OperationResult:
         doc_id = str(key)
@@ -80,6 +111,7 @@ class InvertedIndex(Index):
                 empty_terms.append(term)
         for term in empty_terms:
             self._postings.pop(term, None)
+        self._compute_document_norms()
         self._persist_snapshot()
         return OperationResult(affected=1, io=self._stats())
 
@@ -91,6 +123,26 @@ class InvertedIndex(Index):
 
     def block_count(self) -> int:
         return self._last_block_count
+
+    def document_norm(self, doc_id: Any) -> float:
+        return self._doc_norms.get(str(doc_id), 0.0)
+
+    def _compute_document_norms(self) -> None:
+        norm_squares: dict[str, float] = {doc_id: 0.0 for doc_id in self._documents}
+        for term, postings in self._postings.items():
+            idf = self._idf(term)
+            for doc_id, frequency in postings.items():
+                weight = frequency * idf
+                norm_squares[doc_id] = norm_squares.get(doc_id, 0.0) + weight * weight
+        self._doc_norms = {
+            doc_id: math.sqrt(value)
+            for doc_id, value in norm_squares.items()
+        }
+
+    def _idf(self, term: str) -> float:
+        total_docs = max(len(self._documents), 1)
+        document_frequency = len(self._postings.get(term, {}))
+        return math.log((total_docs + 1) / (document_frequency + 1)) + 1.0
 
     def _document_id(self, record: Any, fallback: int) -> str:
         if isinstance(record, dict) and "id" in record:
@@ -111,6 +163,7 @@ class InvertedIndex(Index):
             "column": self.column,
             "documents": self._documents,
             "postings": self._postings,
+            "doc_norms": self._doc_norms,
             "last_block_count": self._last_block_count,
         }
         try:
@@ -133,7 +186,10 @@ class InvertedIndex(Index):
             return
         self._documents = payload.get("documents", {})
         self._postings = payload.get("postings", {})
+        self._doc_norms = payload.get("doc_norms", {})
         self._last_block_count = payload.get("last_block_count", 0)
+        if not self._doc_norms:
+            self._compute_document_norms()
 
     def _stats(self) -> IOStats:
         if self.storage is None:
