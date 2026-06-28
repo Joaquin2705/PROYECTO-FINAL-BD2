@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import importlib
+import os
 from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
@@ -20,6 +22,16 @@ _ROUTE_MODULES = [
     "api.routes.upload",
     "api.routes.files",
 ]
+
+# Orígenes del frontend permitidos para llamar a la API
+_DEFAULT_ORIGINS = "http://localhost:3000,http://127.0.0.1:3000"
+
+
+# Lee los orígenes permitidos del entorno o usa los del frontend local
+def _allowed_origins() -> list[str]:
+    raw = os.environ.get("CORS_ORIGINS", _DEFAULT_ORIGINS)
+    return [origin.strip() for origin in raw.split(",") if origin.strip()]
+
 
 # Nombre corto de error para cada código de estado
 _ERROR_LABELS = {
@@ -40,6 +52,12 @@ def _error_response(status_code: int, detail: str) -> JSONResponse:
 # Arma la app y conecta el motor de consultas
 def create_app() -> FastAPI:
     app = FastAPI(title="Multimodal DB")
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=_allowed_origins(),
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
     app.state.parser = SqlParser()
     app.state.planner = QueryPlanner()
     app.state.executor = QueryExecutor(MockIndexFactory(), MockStorageEngine())
