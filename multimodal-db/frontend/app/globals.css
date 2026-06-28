@@ -259,6 +259,7 @@ body {
   border: 1px solid #262c38;
   border-radius: 6px;
   overflow: hidden;
+  cursor: pointer;
 }
 
 .gallery-item img {
@@ -297,4 +298,138 @@ body {
 
 .audio-item audio {
   width: 100%;
+}
+
+.media {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.media-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.media-count {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.media-views {
+  display: flex;
+  gap: 6px;
+}
+
+.media-view {
+  padding: 4px 10px;
+  font-size: 12px;
+  color: #c7d0dd;
+  background: #12161e;
+  border: 1px solid #262c38;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.media-view.on {
+  background: #1b2230;
+  border-color: #3a4253;
+}
+
+.media-rows {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.media-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  background: #161a22;
+  border: 1px solid #262c38;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.media-row img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.media-row span {
+  font-size: 13px;
+  color: #c7d0dd;
+  word-break: break-all;
+}
+
+.media-row:hover {
+  background: #1b2230;
+}
+
+.media-more {
+  align-self: flex-start;
+  padding: 6px 12px;
+  font-size: 12px;
+  color: #c7d0dd;
+  background: #12161e;
+  border: 1px solid #262c38;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.media-more:hover {
+  background: #1b2230;
+}
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px;
+  background: rgba(8, 10, 14, 0.85);
+}
+
+.lightbox-item {
+  max-width: 90vw;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lightbox-item img {
+  max-width: 90vw;
+  max-height: 75vh;
+  object-fit: contain;
+  border-radius: 6px;
+}
+
+.lightbox-item figcaption {
+  text-align: center;
+  font-size: 13px;
+  color: #9aa4b2;
+  word-break: break-all;
+}
+
+.lightbox-close {
+  padding: 6px 16px;
+  font-size: 13px;
+  color: #c7d0dd;
+  background: #12161e;
+  border: 1px solid #262c38;
+  border-radius: 6px;
+  cursor: pointer;
 }
