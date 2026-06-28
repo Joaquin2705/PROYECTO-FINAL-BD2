@@ -46,8 +46,15 @@ body {
   resize: vertical;
 }
 
+.editor-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .editor-run {
-  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
   padding: 8px 16px;
   font-size: 14px;
   color: #0f1117;
@@ -60,6 +67,28 @@ body {
 .editor-run:disabled {
   opacity: 0.6;
   cursor: default;
+}
+
+.editor-hint {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 8px;
+  border: 2px solid rgba(15, 17, 23, 0.35);
+  border-top-color: #0f1117;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .editor-error {

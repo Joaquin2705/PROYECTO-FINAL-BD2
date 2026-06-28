@@ -27,18 +27,30 @@ export default function QueryEditor() {
     }
   }
 
+  function onKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      onRun();
+    }
+  }
+
   return (
     <section className="editor">
       <textarea
         className="editor-input"
         value={sql}
         onChange={(e) => setSql(e.target.value)}
+        onKeyDown={onKeyDown}
         rows={6}
         spellCheck={false}
       />
-      <button className="editor-run" onClick={onRun} disabled={loading}>
-        {loading ? "Ejecutando..." : "Ejecutar"}
-      </button>
+      <div className="editor-actions">
+        <button className="editor-run" onClick={onRun} disabled={loading}>
+          {loading && <span className="spinner" />}
+          {loading ? "Ejecutando..." : "Ejecutar"}
+        </button>
+        <span className="editor-hint">Ctrl+Enter para ejecutar</span>
+      </div>
       {error && <p className="editor-error">{error}</p>}
       {result && (
         <>
