@@ -15,6 +15,10 @@ Interfaces (ABCs) en `multimodal-db/`:
 
 `tests/mocks.py` trae una versión falsa de cada interface para las pruebas.
 
+## Índices
+
+La capa de acceso incluye B+Tree, ISAM, hash extendible, R-Tree e índice invertido con SPIMI. La documentación de complejidad y criterios de selección está en [`docs/indices.md`](docs/indices.md).
+
 ## Entorno
 
 Python 3.12:
