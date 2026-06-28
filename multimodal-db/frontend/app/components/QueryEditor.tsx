@@ -11,7 +11,7 @@ import QueryHistory from "./QueryHistory";
 import PlanInspector from "./PlanInspector";
 
 export default function QueryEditor() {
-  const [sql, setSql] = useState("SELECT * FROM img");
+  const [sql, setSql] = useState("SELECT * FROM media");
   const [result, setResult] = useState<QueryResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);

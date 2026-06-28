@@ -6,6 +6,7 @@ from typing import Any
 from core.metrics import IOStats
 from core.ports.storage import StorageEngine
 
+from query.explain import build_explain
 from query.ports import Executor
 from query.plan_types import PlanOp, QueryPlan, ResultSet
 from query.index_factory import IndexFactory, IndexType
@@ -29,6 +30,7 @@ class QueryExecutor(Executor):
         result.index_type = plan.index_type
         if plan.predicate is not None:
             result.predicate_kind = plan.predicate.kind.name.lower()
+        result.explain = build_explain(plan, result)
         return result
 
     def _dispatch(self, plan: QueryPlan) -> ResultSet:

@@ -113,20 +113,19 @@ body {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
   margin-top: 6px;
 }
 
 .history-item {
   width: 100%;
   text-align: left;
-  padding: 6px 10px;
+  padding: 0;
   font-family: ui-monospace, monospace;
   font-size: 12px;
-  color: #c7d0dd;
-  background: #12161e;
-  border: 1px solid #262c38;
-  border-radius: 6px;
+  color: #9aa4b2;
+  background: transparent;
+  border: none;
   cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
@@ -134,27 +133,34 @@ body {
 }
 
 .history-item:hover {
-  background: #1b2230;
-}
-
-.inspector {
-  background: #12161e;
-  border: 1px solid #262c38;
-  border-radius: 6px;
-  padding: 8px 12px;
-}
-
-.inspector summary {
-  cursor: pointer;
-  font-size: 13px;
   color: #c7d0dd;
 }
 
-.inspector-body {
-  margin-top: 8px;
+.inspector {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.inspector-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6b7280;
+  cursor: pointer;
+}
+
+.explain {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   font-family: ui-monospace, monospace;
   font-size: 12px;
   color: #9aa4b2;
+}
+
+.explain-line {
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -185,6 +191,12 @@ body {
 }
 
 .editor-info {
+  color: #9aa4b2;
+}
+
+.empty-rows {
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
   color: #9aa4b2;
 }
 

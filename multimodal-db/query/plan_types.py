@@ -48,3 +48,5 @@ class ResultSet:
     predicate_kind: str | None = None
     # Tiempo de ejecución en milisegundos
     elapsed_ms: float = 0.0
+    # Plan paso a paso como pares de sangría y texto
+    explain: list[tuple[int, str]] = field(default_factory=list)

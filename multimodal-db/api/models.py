@@ -17,6 +17,12 @@ class IOStatsModel(BaseModel):
     pages_allocated: int = 0
 
 
+# Una línea del plan con su nivel de sangría
+class ExplainLine(BaseModel):
+    depth: int = 0
+    text: str = ""
+
+
 # Lo que el servidor responde con los resultados
 class QueryResponse(BaseModel):
     columns: list[str] = Field(default_factory=list)
@@ -25,6 +31,7 @@ class QueryResponse(BaseModel):
     index_type: str | None = None
     predicate_kind: str | None = None
     elapsed_ms: float = 0.0
+    explain: list[ExplainLine] = Field(default_factory=list)
 
 
 # Lo que el servidor responde cuando algo falla

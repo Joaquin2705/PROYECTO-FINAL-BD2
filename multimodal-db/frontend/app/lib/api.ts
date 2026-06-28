@@ -1,3 +1,8 @@
+export interface ExplainLine {
+  depth: number;
+  text: string;
+}
+
 export interface QueryResult {
   columns: string[];
   rows: unknown[][];
@@ -5,6 +10,7 @@ export interface QueryResult {
   index_type: string | null;
   predicate_kind: string | null;
   elapsed_ms: number;
+  explain: ExplainLine[];
 }
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";

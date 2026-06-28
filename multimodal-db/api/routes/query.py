@@ -3,7 +3,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, HTTPException
 
 from api.deps import get_session
-from api.models import IOStatsModel, QueryRequest, QueryResponse
+from api.models import ExplainLine, IOStatsModel, QueryRequest, QueryResponse
 from service.session import Session
 
 router = APIRouter()
@@ -27,4 +27,5 @@ def run_query(req: QueryRequest, session: Session = Depends(get_session)) -> Que
         index_type=result.index_type,
         predicate_kind=result.predicate_kind,
         elapsed_ms=result.elapsed_ms,
+        explain=[ExplainLine(depth=depth, text=text) for depth, text in result.explain],
     )
